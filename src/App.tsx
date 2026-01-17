@@ -13,11 +13,44 @@ import './styles/global.less';
 import { nodeTypes } from './components/nodes';
 import { NodePalette } from './components/NodePalette';
 import type { FlowNode, FlowEdge, TriggerNodeData, AINodeData, FileNodeData } from './types/flow';
+import { Home } from './pages/Home';
 
-// Instantiate RootStore once
+type Project = {
+  id: string;
+  name: string;
+  description: string;
+  updatedAt: string;
+};
+
+const demoProjects: Project[] = [
+  {
+    id: 'demo-1',
+    name: '示例项目一：入门工作流',
+    description: '用于体验触发器、AI 节点与文件节点的基础编排。',
+    updatedAt: '2026-01-17',
+  },
+  {
+    id: 'demo-2',
+    name: '示例项目二：日报生成助手',
+    description: '通过定时触发与 AI 节点自动生成团队日报草稿。',
+    updatedAt: '2026-01-16',
+  },
+  {
+    id: 'demo-3',
+    name: '示例项目三：文件监控与同步',
+    description: '监听本地文件变更并推送更新内容到下游系统。',
+    updatedAt: '2026-01-15',
+  },
+];
+
 const rootStore = new RootStore();
 
-const Editor = observer(() => {
+type EditorProps = {
+  currentProject: Project;
+  onBackHome: () => void;
+};
+
+const Editor = observer(({ currentProject, onBackHome }: EditorProps) => {
   const { workflowStore, uiStore } = useStore();
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance<FlowNode, FlowEdge> | null>(null);
   const canvasRef = useRef<HTMLDivElement | null>(null);
@@ -316,9 +349,12 @@ const Editor = observer(() => {
       <header className={styles.header}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ width: 24, height: 24, background: 'linear-gradient(to bottom left, #fd5d93, #ec250d)', borderRadius: 4 }}></div>
-          <h1>Flodai 工作台</h1>
+          <h1>Flodai 工作台 · {currentProject.name}</h1>
         </div>
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+          <Button ghost size="small" onClick={onBackHome}>
+            返回首页
+          </Button>
           <Segmented
             size="small"
             value={uiStore.nodeDisplayMode}
@@ -515,10 +551,88 @@ const Editor = observer(() => {
 });
 
 function App() {
+  const [projects, setProjects] = useState<Project[]>(demoProjects);
+  const [currentProject, setCurrentProject] = useState<Project | null>(null);
+
+  const handleOpenProject = (project: Project) => {
+    const state = { projectId: project.id };
+    try {
+      window.history.pushState(state, '', '/editor');
+    } catch {
+    }
+    setCurrentProject(project);
+  };
+
+  const handleBackHome = () => {
+    try {
+      window.history.pushState({}, '', '/');
+    } catch {
+    }
+    setCurrentProject(null);
+  };
+
+  const handleDeleteProject = (projectId: string) => {
+    setProjects((prev) => prev.filter((item) => item.id !== projectId));
+    if (currentProject && currentProject.id === projectId) {
+      setCurrentProject(null);
+      try {
+        window.history.pushState({}, '', '/');
+      } catch {
+      }
+    }
+  };
+
+  const handleDuplicateProject = (projectId: string) => {
+    setProjects((prev) => {
+      const source = prev.find((item) => item.id === projectId);
+      if (!source) return prev;
+      const copy: Project = {
+        ...source,
+        id: uuidv4(),
+        name: `${source.name} - 副本`,
+        updatedAt: new Date().toISOString().slice(0, 10),
+      };
+      const index = prev.findIndex((item) => item.id === projectId);
+      if (index === -1) return [...prev, copy];
+      const next = [...prev];
+      next.splice(index + 1, 0, copy);
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    const handlePopState = () => {
+      if (window.location.pathname === '/editor') {
+        const historyState = window.history.state as { projectId?: string } | null;
+        const targetId = historyState?.projectId;
+        const project =
+          projects.find((item) => item.id === targetId) || projects[0] || null;
+        setCurrentProject(project);
+      } else {
+        setCurrentProject(null);
+      }
+    };
+
+    handlePopState();
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [projects]);
+
   return (
     <ConfigProvider theme={appTheme}>
       <RootStoreContext.Provider value={rootStore}>
-        <Editor />
+        {currentProject ? (
+          <Editor currentProject={currentProject} onBackHome={handleBackHome} />
+        ) : (
+          <Home
+            projects={projects}
+            onOpenProject={handleOpenProject}
+            onDeleteProject={handleDeleteProject}
+            onDuplicateProject={handleDuplicateProject}
+          />
+        )}
       </RootStoreContext.Provider>
     </ConfigProvider>
   );
