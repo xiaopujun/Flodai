@@ -4,6 +4,7 @@ import { FolderKanban, Settings2, Info, Cpu } from 'lucide-react';
 import { MoreOutlined } from '@ant-design/icons';
 import { open } from '@tauri-apps/plugin-dialog';
 import { Store } from '@tauri-apps/plugin-store';
+import { ModelManager } from './ModelManager';
 import styles from './Home.module.less';
 
 type Project = {
@@ -215,17 +216,7 @@ export function Home({
           </>
         )}
 
-        {activeMenu === 'models' && (
-          <section className={styles.modelsSection}>
-            <div className={styles.modelsCard}>
-              <div className={styles.modelsTitle}>模型管理</div>
-              <div className={styles.modelsSubTitle}>配置与管理 Flodai 中使用的 AI 模型</div>
-              <div className={styles.modelsBody}>
-                后续可以在这里管理模型提供商、密钥、默认模型以及调用配额等配置。
-              </div>
-            </div>
-          </section>
-        )}
+        {activeMenu === 'models' && <ModelManager />}
 
         {activeMenu === 'settings' && (
           <section className={styles.settingsSection}>
