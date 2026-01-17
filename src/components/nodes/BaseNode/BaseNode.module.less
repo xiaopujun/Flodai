@@ -1,0 +1,55 @@
+@import '../../../styles/variables.less';
+
+.nodeContainer {
+  background: var(--lc-bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  min-width: 300px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  // overflow: hidden; // Allow handles to protrude
+
+  &.selected {
+    border-color: var(--lc-primary);
+    box-shadow: 0 0 15px rgba(253, 93, 147, 0.4); // Glow effect matching --lc-primary
+    transform: translateY(-2px);
+  }
+
+  .header {
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    
+    // Default gradient if none provided
+    background: var(--lc-bg-nav);
+
+    .icon {
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .title {
+      font-family: var(--lc-font-family);
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--lc-text-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      flex: 1;
+    }
+  }
+
+  .body {
+    padding: 16px;
+    color: var(--lc-text-secondary);
+    font-size: 13px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+}

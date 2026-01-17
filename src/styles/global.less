@@ -1,0 +1,30 @@
+@import './variables.less';
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: var(--lc-font-family);
+  background-color: var(--lc-bg-app);
+  color: var(--lc-text-primary);
+  overflow: hidden;
+}
+
+/* Ant Design Scrollbar Override (Optional) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--lc-bg-app);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--lc-bg-card);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--lc-text-secondary);
+}
