@@ -1,6 +1,11 @@
 import { Collapse } from 'antd';
 import styles from '../App.module.less';
 
+export interface NodePaletteDragPayload {
+  nodeType: string;
+  label: string;
+}
+
 type NodeCategoryId =
   | 'triggers'
   | 'ai'
@@ -102,7 +107,13 @@ const nodePaletteCategories: NodeCategory[] = [
   },
 ];
 
-export function NodePalette() {
+export function NodePalette({
+  enablePointerDrag,
+  onStartDrag,
+}: {
+  enablePointerDrag?: boolean;
+  onStartDrag?: (payload: NodePaletteDragPayload, event: React.PointerEvent) => void;
+}) {
   return (
     <Collapse
       className={styles.paletteCollapse}
@@ -119,6 +130,18 @@ export function NodePalette() {
                   key={item.id}
                   className={styles.nodeItem}
                   data-nodetype={item.nodeType}
+                  draggable={!enablePointerDrag}
+                  onDragStart={(event) => {
+                    if (enablePointerDrag) return;
+                    const payload = JSON.stringify({ nodeType: item.nodeType, label: item.label });
+                    event.dataTransfer.setData('application/flodai-node', payload);
+                    event.dataTransfer.setData('text/plain', payload);
+                    event.dataTransfer.effectAllowed = 'move';
+                  }}
+                  onPointerDown={(event) => {
+                    if (!enablePointerDrag) return;
+                    onStartDrag?.({ nodeType: item.nodeType, label: item.label }, event);
+                  }}
                 >
                   {item.label}
                 </div>
@@ -132,4 +155,3 @@ export function NodePalette() {
     />
   );
 }
-

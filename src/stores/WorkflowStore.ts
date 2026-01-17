@@ -6,33 +6,9 @@ import type { FlowNode, FlowEdge, AINodeData, FileNodeData } from '../types/flow
 export class WorkflowStore {
   rootStore: RootStore;
   
-  nodes: FlowNode[] = [
-    { 
-      id: 'ai-1', 
-      type: 'aiNode',
-      position: { x: 100, y: 100 }, 
-      data: { 
-        model: 'gpt-4o', 
-        prompt: 'Write a haiku about Rust and React.',
-        output: '',
-        isStreaming: false
-      } 
-    },
-    { 
-      id: 'file-1', 
-      type: 'fileNode',
-      position: { x: 600, y: 100 }, 
-      data: { 
-        mode: 'write',
-        path: 'C:/Users/Public/output.md',
-        content: ''
-      } 
-    },
-  ];
+  nodes: FlowNode[] = [];
 
-  edges: FlowEdge[] = [
-    { id: 'e1-2', source: 'ai-1', target: 'file-1', animated: true, style: { stroke: '#fd5d93' } }
-  ];
+  edges: FlowEdge[] = [];
 
   constructor(rootStore: RootStore) {
     this.rootStore = rootStore;
@@ -50,6 +26,10 @@ export class WorkflowStore {
   onConnect = (connection: Connection) => {
     this.edges = addEdge(connection, this.edges);
   };
+
+  addNode(node: FlowNode) {
+    this.nodes = [...this.nodes, node];
+  }
 
   updateNodeData(id: string, data: Partial<AINodeData> | Partial<FileNodeData>) {
     this.nodes = this.nodes.map(node => {
