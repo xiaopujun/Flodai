@@ -3,7 +3,7 @@ import '@xyflow/react/dist/style.css';
 import { Button, ConfigProvider, Input, Radio, Switch, Segmented } from 'antd';
 import { toJS } from 'mobx';
 import { observer } from 'mobx-react-lite';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactFlowInstance } from '@xyflow/react';
 import { v4 as uuidv4 } from 'uuid';
 import { RootStore, RootStoreContext, useStore } from './stores/RootStore';
@@ -22,6 +22,7 @@ const Editor = observer(() => {
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance<FlowNode, FlowEdge> | null>(null);
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const [dragGhost, setDragGhost] = useState<{ x: number; y: number; label: string } | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
 
   const enablePointerDrag = useMemo(() => {
     const w = window as unknown as { __TAURI__?: unknown; __TAURI_INTERNALS__?: unknown };
@@ -37,6 +38,46 @@ const Editor = observer(() => {
       position: uiStore.hoverDetailPosition,
     };
   }, [uiStore.hoverDetailNodeId, uiStore.hoverDetailPosition, workflowStore.nodes]);
+
+  const playConnectSound = useCallback(() => {
+    const AnyAudioContext = (window as any).AudioContext || (window as any).webkitAudioContext;
+    if (!AnyAudioContext) return;
+
+    if (!audioContextRef.current) {
+      audioContextRef.current = new AnyAudioContext();
+    }
+
+    const context = audioContextRef.current;
+    if (!context) return;
+
+    const oscillator = context.createOscillator();
+    const gainNode = context.createGain();
+
+    oscillator.type = 'sine';
+    oscillator.frequency.value = 880;
+    gainNode.gain.value = 0.08;
+
+    oscillator.connect(gainNode);
+    gainNode.connect(context.destination);
+
+    const now = context.currentTime;
+    oscillator.start(now);
+    oscillator.stop(now + 0.12);
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Delete' || event.key === 'Backspace') {
+        workflowStore.deleteSelectedElements();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [workflowStore]);
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
@@ -296,7 +337,10 @@ const Editor = observer(() => {
             edges={toJS(workflowStore.edges) as FlowEdge[]}
             onNodesChange={workflowStore.onNodesChange}
             onEdgesChange={workflowStore.onEdgesChange}
-            onConnect={workflowStore.onConnect}
+            onConnect={(connection) => {
+              workflowStore.onConnect(connection);
+              playConnectSound();
+            }}
             onInit={setReactFlowInstance}
             nodeTypes={nodeTypes}
             colorMode="dark"

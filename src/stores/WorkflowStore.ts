@@ -50,6 +50,24 @@ export class WorkflowStore {
     this.nodes = [...this.nodes, node];
   }
 
+  deleteSelectedElements() {
+    const selectedNodeIds = this.nodes.filter((node) => (node as any).selected).map((node) => node.id);
+
+    if (selectedNodeIds.length > 0) {
+      this.nodes = this.nodes.filter((node) => !selectedNodeIds.includes(node.id));
+      this.edges = this.edges.filter(
+        (edge) => !selectedNodeIds.includes(edge.source) && !selectedNodeIds.includes(edge.target),
+      );
+      return;
+    }
+
+    const selectedEdgeIds = this.edges.filter((edge) => (edge as any).selected).map((edge) => edge.id);
+
+    if (selectedEdgeIds.length > 0) {
+      this.edges = this.edges.filter((edge) => !selectedEdgeIds.includes(edge.id));
+    }
+  }
+
   updateNodeData(
     id: string,
     data: Partial<AINodeData> | Partial<FileNodeData> | Partial<TriggerNodeData> | Partial<PythonScriptNodeData>,
