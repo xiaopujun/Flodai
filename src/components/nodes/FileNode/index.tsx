@@ -8,9 +8,33 @@ import type { FileNodeData, FileNodeProps } from '../../../types/flow';
 import styles from './FileNode.module.less';
 
 export const FileNode = memo(({ data, selected, id }: FileNodeProps) => {
-  const { workflowStore } = useStore();
+  const { workflowStore, uiStore } = useStore();
   const nodeData = data as FileNodeData;
   const mode = (nodeData.mode as 'read' | 'write') || 'write';
+  const compact = uiStore.nodeDisplayMode === 'compact';
+
+  if (compact) {
+    return (
+      <div
+        className={styles.compactNode}
+        onPointerMove={(event) => {
+          if (!event.altKey) {
+            uiStore.hideNodeHoverDetail();
+            return;
+          }
+          uiStore.showNodeHoverDetail(id, { x: event.clientX, y: event.clientY });
+        }}
+        onPointerLeave={() => uiStore.hideNodeHoverDetail()}
+      >
+        <Handle type="target" position={Position.Left} id="in" style={{ background: '#fff' }} />
+        <Handle type="source" position={Position.Right} id="out" style={{ background: '#fff' }} />
+        <div className={styles.compactIcon}>
+          <FileText size={20} />
+        </div>
+        <div className={styles.compactLabel}>文件系统</div>
+      </div>
+    );
+  }
 
   const handleModeChange = (value: string) => {
     workflowStore.updateNodeData(id, { mode: value });

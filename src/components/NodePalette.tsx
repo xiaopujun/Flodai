@@ -1,5 +1,6 @@
 import { Collapse } from 'antd';
 import styles from '../App.module.less';
+import { Bot, Code2, FileText, PlayCircle } from 'lucide-react';
 
 export interface NodePaletteDragPayload {
   nodeType: string;
@@ -107,6 +108,21 @@ const nodePaletteCategories: NodeCategory[] = [
   },
 ];
 
+function renderNodeIcon(nodeType: string) {
+  switch (nodeType) {
+    case 'triggerNode':
+      return <PlayCircle size={16} />;
+    case 'aiNode':
+      return <Bot size={16} />;
+    case 'fileNode':
+      return <FileText size={16} />;
+    case 'pythonScriptNode':
+      return <Code2 size={16} />;
+    default:
+      return null;
+  }
+}
+
 export function NodePalette({
   enablePointerDrag,
   onStartDrag,
@@ -143,7 +159,8 @@ export function NodePalette({
                     onStartDrag?.({ nodeType: item.nodeType, label: item.label }, event);
                   }}
                 >
-                  {item.label}
+                  <span className={styles.nodeItemIcon}>{renderNodeIcon(item.nodeType)}</span>
+                  <span className={styles.nodeItemLabel}>{item.label}</span>
                 </div>
               ))
             ) : (

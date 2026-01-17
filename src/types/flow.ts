@@ -15,6 +15,11 @@ export interface FileNodeData extends Record<string, unknown> {
 
 export interface TriggerNodeData extends Record<string, unknown> {
   label: string;
+  enabled?: boolean;
+  mode?: 'manual' | 'scheduleOnce';
+  scheduleTime?: string;
+  initialPayload?: string;
+  lastRunAt?: string;
 }
 
 export interface PythonScriptNodeData extends Record<string, unknown> {
@@ -31,3 +36,5 @@ export type FlowEdge = Edge;
 
 export type AINodeProps = NodeProps<AINode>;
 export type FileNodeProps = NodeProps<FileNode>;
+export type TriggerNodeProps = NodeProps<TriggerNode>;
+export type PythonScriptNodeProps = NodeProps<PythonScriptNode>;

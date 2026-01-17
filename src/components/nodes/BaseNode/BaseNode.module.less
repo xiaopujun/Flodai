@@ -21,6 +21,8 @@
     align-items: center;
     gap: 8px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
     
     // Default gradient if none provided
     background: var(--lc-bg-nav);
@@ -51,5 +53,9 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+  }
+
+  &.compact {
+    min-width: 180px;
   }
 }
