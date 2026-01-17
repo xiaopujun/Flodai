@@ -24,6 +24,8 @@ export class UIStore {
   hoverDetailNodeId: string | null = null;
   hoverDetailPosition: { x: number; y: number } | null = null;
   isDraggingNode: boolean = false;
+  nodeContextMenuVisible: boolean = false;
+  nodeContextMenuPosition: { x: number; y: number } | null = null;
 
   constructor(rootStore: RootStore) {
     this.rootStore = rootStore;
@@ -55,5 +57,15 @@ export class UIStore {
 
   setIsDraggingNode(isDragging: boolean) {
     this.isDraggingNode = isDragging;
+  }
+
+  showNodeContextMenu(position: { x: number; y: number }) {
+    this.nodeContextMenuVisible = true;
+    this.nodeContextMenuPosition = position;
+  }
+
+  hideNodeContextMenu() {
+    this.nodeContextMenuVisible = false;
+    this.nodeContextMenuPosition = null;
   }
 }

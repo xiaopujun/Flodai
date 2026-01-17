@@ -39,6 +39,31 @@
     backdrop-filter: blur(10px);
   }
 
+  .nodeContextMenu {
+    position: fixed;
+    z-index: 10000;
+    min-width: 120px;
+    padding: 4px 0;
+    background: rgba(24, 24, 38, 0.98);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6);
+    color: #fff;
+    font-size: 12px;
+  }
+
+  .nodeContextMenuItem {
+    padding: 6px 14px;
+    cursor: pointer;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+
+  .nodeContextMenuItem:hover {
+    background: rgba(253, 93, 147, 0.16);
+    color: var(--lc-primary);
+  }
+
   .header {
     height: 56px;
     background-color: var(--lc-bg-nav);
@@ -47,7 +72,7 @@
     align-items: center;
     padding: 0 24px;
     justify-content: space-between;
-    
+
     h1 {
       font-size: 18px;
       font-weight: 500;
@@ -71,7 +96,7 @@
       flex-direction: column;
       gap: 12px;
       z-index: 10;
-      box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+      box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
       overflow-y: auto;
       min-height: 0;
 
@@ -81,7 +106,7 @@
         :global(.ant-collapse-item) {
           border: 0;
           border-radius: var(--lc-radius-base);
-          background: rgba(255,255,255,0.02);
+          background: rgba(255, 255, 255, 0.02);
           overflow: hidden;
         }
 
@@ -126,7 +151,7 @@
 
       .nodeItem {
         padding: 12px;
-        background: rgba(255,255,255,0.05);
+        background: rgba(255, 255, 255, 0.05);
         border-radius: var(--lc-radius-base);
         cursor: grab;
         color: var(--lc-text-secondary);
@@ -172,23 +197,25 @@
       background-color: var(--lc-bg-card);
       border-left: 1px solid rgba(255, 255, 255, 0.05);
       z-index: 10;
-      box-shadow: -4px 0 10px rgba(0,0,0,0.1);
+      box-shadow: -4px 0 10px rgba(0, 0, 0, 0.1);
     }
   }
 
   .console {
     height: 240px;
-    background-color: #1a1a2e; /* Slightly darker than app bg */
-    border-top: 1px solid var(--lc-primary); /* Accent border */
+    background-color: #1a1a2e;
+    /* Slightly darker than app bg */
+    border-top: 1px solid var(--lc-primary);
+    /* Accent border */
     color: #fff;
     padding: 0;
     display: flex;
     flex-direction: column;
     transition: height 0.3s ease;
-    
+
     &.collapsed {
       height: 36px;
-      border-top: 1px solid rgba(255,255,255,0.1);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .consoleHeader {
@@ -197,9 +224,9 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: rgba(255,255,255,0.02);
+      background: rgba(255, 255, 255, 0.02);
       cursor: pointer;
-      
+
       span {
         font-size: 12px;
         font-weight: 600;
@@ -215,12 +242,21 @@
       padding: 12px 16px;
       font-family: 'Consolas', 'Monaco', monospace;
       font-size: 13px;
-      
+
       .logLine {
         margin-bottom: 4px;
-        &.info { color: var(--lc-info); }
-        &.success { color: var(--lc-success); }
-        &.error { color: var(--lc-danger); }
+
+        &.info {
+          color: var(--lc-info);
+        }
+
+        &.success {
+          color: var(--lc-success);
+        }
+
+        &.error {
+          color: var(--lc-danger);
+        }
       }
     }
   }

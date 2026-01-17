@@ -295,6 +295,23 @@ const Editor = observer(() => {
           {renderHoverDetailContent(hoverDetail.node)}
         </div>
       )}
+
+      {uiStore.nodeContextMenuVisible && uiStore.nodeContextMenuPosition && (
+        <div
+          className={styles.nodeContextMenu}
+          style={{ left: uiStore.nodeContextMenuPosition.x, top: uiStore.nodeContextMenuPosition.y }}
+        >
+          <div
+            className={styles.nodeContextMenuItem}
+            onClick={() => {
+              workflowStore.deleteSelectedElements();
+              uiStore.hideNodeContextMenu();
+            }}
+          >
+            删除节点
+          </div>
+        </div>
+      )}
       {/* Header */}
       <header className={styles.header}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -330,7 +347,13 @@ const Editor = observer(() => {
         </aside>
 
         {/* Canvas */}
-        <div className={styles.canvas} ref={canvasRef} onDrop={onDrop} onDragOver={onDragOver}>
+        <div
+          className={styles.canvas}
+          ref={canvasRef}
+          onDrop={onDrop}
+          onDragOver={onDragOver}
+          onClick={() => uiStore.hideNodeContextMenu()}
+        >
           <ReactFlow<FlowNode, FlowEdge>
             proOptions={{ hideAttribution: true }}
             nodes={toJS(workflowStore.nodes) as FlowNode[]}
@@ -348,6 +371,10 @@ const Editor = observer(() => {
             onNodeDragStop={() => {
               uiStore.setIsDraggingNode(false);
               uiStore.hideNodeHoverDetail();
+            }}
+            onNodeContextMenu={(event) => {
+              event.preventDefault();
+              uiStore.showNodeContextMenu({ x: event.clientX, y: event.clientY });
             }}
           >
             <Background color="#333" gap={20} />
