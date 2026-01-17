@@ -30,6 +30,7 @@
     flex: 1;
     display: flex;
     overflow: hidden;
+    min-height: 0;
 
     .sidebar {
       background-color: var(--lc-bg-card);
@@ -40,6 +41,57 @@
       gap: 12px;
       z-index: 10;
       box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+      overflow-y: auto;
+      min-height: 0;
+
+      .paletteCollapse {
+        background: transparent;
+
+        :global(.ant-collapse-item) {
+          border: 0;
+          border-radius: var(--lc-radius-base);
+          background: rgba(255,255,255,0.02);
+          overflow: hidden;
+        }
+
+        :global(.ant-collapse-item:not(:last-child)) {
+          margin-bottom: 12px;
+        }
+
+        :global(.ant-collapse-header) {
+          padding: 8px 10px !important;
+          color: var(--lc-text-secondary) !important;
+          font-size: 12px;
+          letter-spacing: 0.5px;
+        }
+
+        :global(.ant-collapse-expand-icon) {
+          color: var(--lc-text-secondary);
+        }
+
+        :global(.ant-collapse-content) {
+          background: transparent;
+          border-top: 0;
+        }
+
+        :global(.ant-collapse-content-box) {
+          padding: 0 0 8px 0 !important;
+        }
+      }
+
+      .categoryBody {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 0 0 0 0;
+      }
+
+      .emptyCategory {
+        padding: 10px 12px;
+        font-size: 12px;
+        color: var(--lc-text-secondary);
+        opacity: 0.7;
+      }
 
       .nodeItem {
         padding: 12px;
@@ -49,6 +101,8 @@
         color: var(--lc-text-secondary);
         border: 1px solid transparent;
         transition: all 0.2s;
+        white-space: normal;
+        word-break: break-word;
 
         &:hover {
           border-color: var(--lc-primary);

@@ -22,7 +22,7 @@ export const FileNode = memo(({ data, selected, id }: FileNodeProps) => {
 
   return (
     <BaseNode
-      title="File System"
+      title="文件系统"
       icon={<FileText size={16} />}
       selected={selected}
       headerStyle={{ background: 'var(--lc-info-gradient)' }}
@@ -36,8 +36,8 @@ export const FileNode = memo(({ data, selected, id }: FileNodeProps) => {
       <div className={styles.inputGroup}>
         <Segmented
           options={[
-            { label: 'Read File', value: 'read' },
-            { label: 'Write File', value: 'write' },
+            { label: '读取', value: 'read' },
+            { label: '写入', value: 'write' },
           ]}
           value={mode}
           onChange={handleModeChange}
@@ -47,11 +47,11 @@ export const FileNode = memo(({ data, selected, id }: FileNodeProps) => {
       </div>
 
       <div className={styles.inputGroup}>
-        <label>File Path</label>
+        <label>文件路径</label>
         <div style={{ display: 'flex', gap: 4 }}>
           <Input 
             value={nodeData.path} 
-            placeholder="/path/to/file.md" 
+            placeholder="例如：/path/to/file.md" 
             size="small" 
             onChange={handlePathChange}
           />
@@ -61,18 +61,18 @@ export const FileNode = memo(({ data, selected, id }: FileNodeProps) => {
 
       {mode === 'read' && (
         <div className={styles.inputGroup}>
-          <label>Preview</label>
+          <label>预览</label>
           <div className={styles.previewArea}>
-            {nodeData.content || '<No file loaded>'}
+            {nodeData.content || '<未加载文件>'}
           </div>
         </div>
       )}
       
       {mode === 'write' && (
         <div className={styles.inputGroup}>
-          <label>Status</label>
+          <label>状态</label>
           <div style={{ fontSize: 12, color: 'var(--lc-text-secondary)' }}>
-            Ready to write...
+            准备写入...
           </div>
         </div>
       )}

@@ -8,6 +8,7 @@ import { appTheme } from './theme';
 import styles from './App.module.less';
 import './styles/global.less';
 import { nodeTypes } from './components/nodes';
+import { NodePalette } from './components/NodePalette';
 import type { FlowNode, FlowEdge } from './types/flow';
 
 // Instantiate RootStore once
@@ -22,12 +23,12 @@ const Editor = observer(() => {
       <header className={styles.header}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ width: 24, height: 24, background: 'linear-gradient(to bottom left, #fd5d93, #ec250d)', borderRadius: 4 }}></div>
-          <h1>Flodai Workbench</h1>
+          <h1>Flodai 工作台</h1>
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
-          <Button ghost>Undo</Button>
+          <Button ghost>撤销</Button>
           <Button type="primary" style={{ background: 'var(--lc-primary-gradient)', border: 'none' }}>
-            Run Workflow
+            运行工作流
           </Button>
         </div>
       </header>
@@ -36,10 +37,7 @@ const Editor = observer(() => {
       <div className={styles.main}>
         {/* Sidebar */}
         <aside className={styles.sidebar} style={{ width: uiStore.sidebarWidth }}>
-          <div className={styles.nodeItem}>Trigger Node</div>
-          <div className={styles.nodeItem}>AI Generator</div>
-          <div className={styles.nodeItem}>File Reader</div>
-          <div className={styles.nodeItem}>Python Script</div>
+          <NodePalette />
         </aside>
 
         {/* Canvas */}
@@ -63,9 +61,9 @@ const Editor = observer(() => {
         {/* Inspector */}
         <aside className={styles.inspector}>
           <div style={{ padding: 20 }}>
-            <h2 style={{ fontSize: 16, color: 'var(--lc-text-secondary)', margin: 0 }}>Properties</h2>
+            <h2 style={{ fontSize: 16, color: 'var(--lc-text-secondary)', margin: 0 }}>属性</h2>
             <div style={{ marginTop: 20, color: '#fff' }}>
-              Select a node to edit.
+              选择一个节点以编辑。
             </div>
           </div>
         </aside>
@@ -74,16 +72,16 @@ const Editor = observer(() => {
       {/* Console Panel */}
       <div className={`${styles.console} ${!uiStore.isConsoleOpen ? styles.collapsed : ''}`}>
         <div className={styles.consoleHeader} onClick={() => uiStore.toggleConsole()}>
-          <span>System Console</span>
+          <span>系统控制台</span>
           <div style={{ color: 'var(--lc-text-secondary)' }}>
             {uiStore.isConsoleOpen ? '▼' : '▲'}
           </div>
         </div>
         {uiStore.isConsoleOpen && (
           <div className={styles.consoleBody}>
-            <div className={`${styles.logLine} info`}>[10:00:01] System initialized.</div>
-            <div className={`${styles.logLine} success`}>[10:00:02] Rust backend connected.</div>
-            <div className={styles.logLine}>[10:00:02] Ready to execute workflows.</div>
+            <div className={`${styles.logLine} info`}>[10:00:01] 系统已初始化。</div>
+            <div className={`${styles.logLine} success`}>[10:00:02] Rust 后端已连接。</div>
+            <div className={styles.logLine}>[10:00:02] 准备执行工作流。</div>
           </div>
         )}
       </div>
