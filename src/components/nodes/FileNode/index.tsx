@@ -17,12 +17,12 @@ export const FileNode = memo(({ data, selected, id }: FileNodeProps) => {
     return (
       <div
         className={styles.compactNode}
-        onPointerMove={(event) => {
-          if (!event.altKey) {
-            uiStore.hideNodeHoverDetail();
-            return;
-          }
-          uiStore.showNodeHoverDetail(id, { x: event.clientX, y: event.clientY });
+        onPointerEnter={(event) => {
+          const rect = (event.currentTarget as HTMLDivElement).getBoundingClientRect();
+          uiStore.showNodeHoverDetail(id, {
+            x: rect.right + 12,
+            y: rect.top + rect.height / 2,
+          });
         }}
         onPointerLeave={() => uiStore.hideNodeHoverDetail()}
       >

@@ -23,6 +23,7 @@ export class UIStore {
 
   hoverDetailNodeId: string | null = null;
   hoverDetailPosition: { x: number; y: number } | null = null;
+  isDraggingNode: boolean = false;
 
   constructor(rootStore: RootStore) {
     this.rootStore = rootStore;
@@ -50,5 +51,9 @@ export class UIStore {
   hideNodeHoverDetail() {
     this.hoverDetailNodeId = null;
     this.hoverDetailPosition = null;
+  }
+
+  setIsDraggingNode(isDragging: boolean) {
+    this.isDraggingNode = isDragging;
   }
 }

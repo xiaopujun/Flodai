@@ -166,15 +166,15 @@ const Editor = observer(() => {
           <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>
             {data.label || '触发器'}
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', columnGap: 24 }}>
             <span style={{ opacity: 0.7 }}>模式</span>
             <span>{modeText}</span>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', columnGap: 24 }}>
             <span style={{ opacity: 0.7 }}>计划时间</span>
             <span>{data.scheduleTime || '未设置'}</span>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', columnGap: 24 }}>
             <span style={{ opacity: 0.7 }}>状态</span>
             <span>{statusText}</span>
           </div>
@@ -193,7 +193,7 @@ const Editor = observer(() => {
       return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>AI 生成器</div>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', columnGap: 24 }}>
             <span style={{ opacity: 0.7 }}>模型</span>
             <span>{data.model || '未选择'}</span>
           </div>
@@ -214,7 +214,7 @@ const Editor = observer(() => {
       return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>文件系统</div>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', columnGap: 24 }}>
             <span style={{ opacity: 0.7 }}>模式</span>
             <span>{modeText}</span>
           </div>
@@ -246,7 +246,7 @@ const Editor = observer(() => {
         </div>
       )}
 
-      {hoverDetail && uiStore.nodeDisplayMode === 'compact' && (
+      {hoverDetail && uiStore.nodeDisplayMode === 'compact' && !uiStore.isDraggingNode && (
         <div
           className={styles.nodeDetailOverlay}
           style={{ left: hoverDetail.position.x + 12, top: hoverDetail.position.y + 12 }}
@@ -300,6 +300,11 @@ const Editor = observer(() => {
             onInit={setReactFlowInstance}
             nodeTypes={nodeTypes}
             colorMode="dark"
+            onNodeDragStart={() => uiStore.setIsDraggingNode(true)}
+            onNodeDragStop={() => {
+              uiStore.setIsDraggingNode(false);
+              uiStore.hideNodeHoverDetail();
+            }}
           >
             <Background color="#333" gap={20} />
             <Controls style={{ fill: '#fff' }} />
