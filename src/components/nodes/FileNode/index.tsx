@@ -1,20 +1,16 @@
 import React, { memo } from 'react';
-import { Handle, Position, NodeProps } from '@xyflow/react';
+import { Handle, Position } from '@xyflow/react';
 import { Segmented, Input, Button } from 'antd';
 import { FileText, FolderOpen } from 'lucide-react';
 import { useStore } from '../../../stores/RootStore';
 import { BaseNode } from '../BaseNode';
+import type { FileNodeData, FileNodeProps } from '../../../types/flow';
 import styles from './FileNode.module.less';
 
-export interface FileNodeData extends Record<string, unknown> {
-  path?: string;
-  mode?: 'read' | 'write';
-  content?: string;
-}
-
-export const FileNode = memo(({ data, selected, id }: NodeProps<ReactNode & { data: FileNodeData }>) => {
+export const FileNode = memo(({ data, selected, id }: FileNodeProps) => {
   const { workflowStore } = useStore();
-  const mode = (data.mode as 'read' | 'write') || 'write';
+  const nodeData = data as FileNodeData;
+  const mode = (nodeData.mode as 'read' | 'write') || 'write';
 
   const handleModeChange = (value: string) => {
     workflowStore.updateNodeData(id, { mode: value });
@@ -54,7 +50,7 @@ export const FileNode = memo(({ data, selected, id }: NodeProps<ReactNode & { da
         <label>File Path</label>
         <div style={{ display: 'flex', gap: 4 }}>
           <Input 
-            value={data.path} 
+            value={nodeData.path} 
             placeholder="/path/to/file.md" 
             size="small" 
             onChange={handlePathChange}
@@ -67,7 +63,7 @@ export const FileNode = memo(({ data, selected, id }: NodeProps<ReactNode & { da
         <div className={styles.inputGroup}>
           <label>Preview</label>
           <div className={styles.previewArea}>
-            {data.content || '<No file loaded>'}
+            {nodeData.content || '<No file loaded>'}
           </div>
         </div>
       )}

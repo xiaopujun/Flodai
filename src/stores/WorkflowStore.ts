@@ -1,12 +1,12 @@
 import { makeAutoObservable } from 'mobx';
 import { RootStore } from './RootStore';
-import { Node, Edge, OnNodesChange, OnEdgesChange, applyNodeChanges, applyEdgeChanges, addEdge, Connection } from '@xyflow/react';
+import { OnNodesChange, OnEdgesChange, applyNodeChanges, applyEdgeChanges, addEdge, Connection } from '@xyflow/react';
+import type { FlowNode, FlowEdge, AINodeData, FileNodeData } from '../types/flow';
 
 export class WorkflowStore {
   rootStore: RootStore;
   
-  // Initial Nodes using our Custom Types
-  nodes: Node[] = [
+  nodes: FlowNode[] = [
     { 
       id: 'ai-1', 
       type: 'aiNode',
@@ -30,7 +30,7 @@ export class WorkflowStore {
     },
   ];
 
-  edges: Edge[] = [
+  edges: FlowEdge[] = [
     { id: 'e1-2', source: 'ai-1', target: 'file-1', animated: true, style: { stroke: '#fd5d93' } }
   ];
 
@@ -39,11 +39,11 @@ export class WorkflowStore {
     makeAutoObservable(this);
   }
 
-  onNodesChange: OnNodesChange = (changes) => {
+  onNodesChange: OnNodesChange<FlowNode> = (changes) => {
     this.nodes = applyNodeChanges(changes, this.nodes);
   };
 
-  onEdgesChange: OnEdgesChange = (changes) => {
+  onEdgesChange: OnEdgesChange<FlowEdge> = (changes) => {
     this.edges = applyEdgeChanges(changes, this.edges);
   };
 
@@ -51,11 +51,10 @@ export class WorkflowStore {
     this.edges = addEdge(connection, this.edges);
   };
 
-  // Helper to update node data (will be used by components or backend)
-  updateNodeData(id: string, data: Record<string, any>) {
+  updateNodeData(id: string, data: Partial<AINodeData> | Partial<FileNodeData>) {
     this.nodes = this.nodes.map(node => {
       if (node.id === id) {
-        return { ...node, data: { ...node.data, ...data } };
+        return { ...node, data: { ...node.data, ...data } } as FlowNode;
       }
       return node;
     });

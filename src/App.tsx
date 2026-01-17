@@ -8,6 +8,7 @@ import { appTheme } from './theme';
 import styles from './App.module.less';
 import './styles/global.less';
 import { nodeTypes } from './components/nodes';
+import type { FlowNode, FlowEdge } from './types/flow';
 
 // Instantiate RootStore once
 const rootStore = new RootStore();
@@ -43,9 +44,9 @@ const Editor = observer(() => {
 
         {/* Canvas */}
         <div className={styles.canvas}>
-          <ReactFlow
-            nodes={toJS(workflowStore.nodes)}
-            edges={toJS(workflowStore.edges)}
+          <ReactFlow<FlowNode, FlowEdge>
+            nodes={toJS(workflowStore.nodes) as FlowNode[]}
+            edges={toJS(workflowStore.edges) as FlowEdge[]}
             onNodesChange={workflowStore.onNodesChange}
             onEdgesChange={workflowStore.onEdgesChange}
             onConnect={workflowStore.onConnect}

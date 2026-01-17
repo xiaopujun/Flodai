@@ -1,22 +1,17 @@
 import React, { memo } from 'react';
-import { Handle, Position, NodeProps } from '@xyflow/react';
+import { Handle, Position } from '@xyflow/react';
 import { Select, Input } from 'antd';
 import { Bot, Sparkles } from 'lucide-react';
 import { useStore } from '../../../stores/RootStore';
 import { BaseNode } from '../BaseNode';
+import type { AINodeData, AINodeProps } from '../../../types/flow';
 import styles from './AINode.module.less';
 
 const { TextArea } = Input;
 
-export interface AINodeData extends Record<string, unknown> {
-  model?: string;
-  prompt?: string;
-  output?: string;
-  isStreaming?: boolean;
-}
-
-export const AINode = memo(({ data, selected, id }: NodeProps<ReactNode & { data: AINodeData }>) => {
+export const AINode = memo(({ data, selected, id }: AINodeProps) => {
   const { workflowStore } = useStore();
+  const nodeData = data as AINodeData;
 
   const handleModelChange = (value: string) => {
     workflowStore.updateNodeData(id, { model: value });
@@ -43,7 +38,7 @@ export const AINode = memo(({ data, selected, id }: NodeProps<ReactNode & { data
         <label>Model</label>
         <Select
           defaultValue="gpt-4o"
-          value={data.model}
+          value={nodeData.model}
           style={{ width: '100%' }}
           options={[
             { value: 'gpt-4o', label: 'GPT-4o' },
@@ -59,7 +54,7 @@ export const AINode = memo(({ data, selected, id }: NodeProps<ReactNode & { data
         <TextArea 
           placeholder="Enter instructions for the AI..." 
           autoSize={{ minRows: 3, maxRows: 6 }}
-          value={data.prompt}
+          value={nodeData.prompt}
           onChange={handlePromptChange}
           variant="filled"
         />
@@ -68,10 +63,10 @@ export const AINode = memo(({ data, selected, id }: NodeProps<ReactNode & { data
       <div className={styles.outputPreview}>
         <div className={styles.outputLabel}>
           <span>OUTPUT</span>
-          {data.isStreaming && <Sparkles size={12} className="animate-spin" />}
+          {nodeData.isStreaming && <Sparkles size={12} className="animate-spin" />}
         </div>
         <div className={styles.content}>
-          {data.output || 'Waiting for execution...'}
+          {nodeData.output || 'Waiting for execution...'}
         </div>
       </div>
     </BaseNode>
