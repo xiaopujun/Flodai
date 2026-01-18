@@ -1,6 +1,6 @@
 import { Collapse } from 'antd';
 import styles from '../App.module.less';
-import { Bot, PlayCircle } from 'lucide-react';
+import { PlayCircle } from 'lucide-react';
 
 export interface NodePaletteDragPayload {
   nodeType: string;
@@ -9,7 +9,6 @@ export interface NodePaletteDragPayload {
 
 type NodeCategoryId =
   | 'triggers'
-  | 'ai'
   | 'integrations'
   | 'transform'
   | 'state'
@@ -38,17 +37,6 @@ const nodePaletteCategories: NodeCategory[] = [
         id: 'trigger-node',
         label: '触发器',
         nodeType: 'triggerNode',
-      },
-    ],
-  },
-  {
-    id: 'ai',
-    label: 'AI 生成与理解',
-    items: [
-      {
-        id: 'conversation-ai',
-        label: '对话 AI',
-        nodeType: 'aiNode',
       },
     ],
   },
@@ -88,8 +76,6 @@ function renderNodeIcon(nodeType: string) {
   switch (nodeType) {
     case 'triggerNode':
       return <PlayCircle size={16} />;
-    case 'aiNode':
-      return <Bot size={16} />;
     default:
       return null;
   }
@@ -106,7 +92,7 @@ export function NodePalette({
     <Collapse
       className={styles.paletteCollapse}
       bordered={false}
-      defaultActiveKey={['triggers', 'ai']}
+      defaultActiveKey={['triggers']}
       items={nodePaletteCategories.map((category) => ({
         key: category.id,
         label: category.label,

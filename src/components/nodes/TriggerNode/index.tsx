@@ -4,8 +4,9 @@ import { PlayCircle } from 'lucide-react';
 import type { TriggerNodeData, TriggerNodeProps } from '../../../types/flow';
 import styles from './TriggerNode.module.less';
 import { useStore } from '../../../stores/RootStore';
+import type { NodeComponent } from '../NodeComponent';
 
-export const TriggerNode = memo(({ data, id }: TriggerNodeProps) => {
+const TriggerNodeImpl: NodeComponent<TriggerNodeProps, unknown> = ({ data, id }) => {
   const { uiStore } = useStore();
   const nodeData = data as TriggerNodeData;
   const label = nodeData.name || '触发器';
@@ -38,4 +39,18 @@ export const TriggerNode = memo(({ data, id }: TriggerNodeProps) => {
       <div className={styles.compactLabel}>{label}</div>
     </div>
   );
-});
+};
+
+TriggerNodeImpl.nodeType = 'triggerNode';
+TriggerNodeImpl.getNodeConfig = () => {
+  return {};
+};
+TriggerNodeImpl.getConfigPanelInfo = () => {
+  return {
+    title: '触发器配置',
+    key: 'trigger-config',
+    component: () => null,
+  };
+};
+
+export const TriggerNode = memo(TriggerNodeImpl);

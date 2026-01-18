@@ -4,7 +4,6 @@ import { OnNodesChange, OnEdgesChange, applyNodeChanges, applyEdgeChanges, addEd
 import type {
   FlowNode,
   FlowEdge,
-  AINodeData,
   TriggerNodeData,
 } from '../types/flow';
 
@@ -68,7 +67,7 @@ export class WorkflowStore {
 
   updateNodeData(
     id: string,
-    data: Partial<AINodeData> | Partial<TriggerNodeData>,
+    data: Partial<TriggerNodeData>,
   ) {
     this.nodes = this.nodes.map((node) => {
       if (node.id === id) {

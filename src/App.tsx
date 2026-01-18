@@ -1,6 +1,6 @@
 import { ReactFlow, Controls, Background, MiniMap } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { Button, ConfigProvider, Modal, Input, Radio, Switch, Select } from 'antd';
+import { Button, ConfigProvider } from 'antd';
 import { toJS } from 'mobx';
 import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -12,12 +12,11 @@ import styles from './App.module.less';
 import './styles/global.less';
 import { nodeTypes } from './components/nodes';
 import { NodePalette } from './components/NodePalette';
+import { NodeConfigModal } from './components/NodeConfigModal';
 import type {
   FlowNode,
   FlowEdge,
   TriggerNodeData,
-  AINodeData,
-  ConversationAIConfig,
   TriggerNodeConfig,
 } from './types/flow';
 import { Home } from './pages/Home';
@@ -126,70 +125,37 @@ const Editor = observer(({ currentProject, onBackHome }: EditorProps) => {
   }, []);
 
   const createNode = useCallback(
-    (nodeType: string, label: string, position: { x: number; y: number }) => {
+    (_nodeType: string, label: string, position: { x: number; y: number }) => {
       const id = uuidv4();
 
       const baseName = label || '节点';
 
-      const node: FlowNode =
-        nodeType === 'aiNode'
-          ? ({
-            id,
-            type: 'aiNode',
-            position,
-            data: {
-              kind: 'conversationAI',
-              name: baseName || '对话 AI',
-              description: '',
-              inputs: [
-                {
-                  id: `${id}-in`,
-                  key: 'control',
-                  label: '上游',
-                  kind: 'control',
-                },
-              ],
-              outputs: [
-                {
-                  id: `${id}-out`,
-                  key: 'control',
-                  label: '下游',
-                  kind: 'control',
-                },
-              ],
-              config: {
-                modelId: '',
-                systemPrompt: '',
-                historyPolicy: 'none',
-              } as ConversationAIConfig,
-            } as AINodeData,
-          } as FlowNode)
-          : ({
-            id,
-            type: 'triggerNode',
-            position,
-            data: {
-              kind: 'trigger',
-              name: baseName || '触发器',
-              description: '',
-              inputs: [],
-              outputs: [
-                {
-                  id: `${id}-out`,
-                  key: 'next',
-                  label: '下游',
-                  kind: 'control',
-                },
-              ],
-              config: {
-                mode: 'manual',
-                scheduleTime: undefined,
-                initialPayload: '',
-                enabled: true,
-                lastRunAt: undefined,
-              } as TriggerNodeConfig,
-            } as TriggerNodeData,
-          } as FlowNode);
+      const node: FlowNode = {
+        id,
+        type: 'triggerNode',
+        position,
+        data: {
+          kind: 'trigger',
+          name: baseName || '触发器',
+          description: '',
+          inputs: [],
+          outputs: [
+            {
+              id: `${id}-out`,
+              key: 'next',
+              label: '下游',
+              kind: 'control',
+            },
+          ],
+          config: {
+            mode: 'manual',
+            scheduleTime: undefined,
+            initialPayload: '',
+            enabled: true,
+            lastRunAt: undefined,
+          } as TriggerNodeConfig,
+        } as TriggerNodeData,
+      };
 
       workflowStore.addNode(node);
     },
@@ -290,31 +256,6 @@ const Editor = observer(({ currentProject, onBackHome }: EditorProps) => {
             <span style={{ opacity: 0.7 }}>初始变量</span>
             <span style={{ wordBreak: 'break-all', whiteSpace: 'pre-wrap' }}>
               {data.config.initialPayload || '未设置'}
-            </span>
-          </div>
-        </div>
-      );
-    }
-
-    if (node.type === 'aiNode') {
-      const data = node.data as AINodeData;
-      const historyMode = (data.config.historyPolicy as 'none' | 'node') || 'none';
-      const historyText = historyMode === 'node' ? '节点会话' : '无记忆';
-      return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>对话 AI</div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', columnGap: 24 }}>
-            <span style={{ opacity: 0.7 }}>会话模型</span>
-            <span>{data.config.modelId || '未选择'}</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', columnGap: 24 }}>
-            <span style={{ opacity: 0.7 }}>记忆模式</span>
-            <span>{historyText}</span>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <span style={{ opacity: 0.7 }}>系统消息 / 角色设定</span>
-            <span style={{ wordBreak: 'break-all', whiteSpace: 'pre-wrap' }}>
-              {data.config.systemPrompt || '未设置'}
             </span>
           </div>
         </div>
@@ -434,291 +375,11 @@ const Editor = observer(({ currentProject, onBackHome }: EditorProps) => {
 
       </div>
 
-      {configNodeId &&
-        (() => {
-          const node = workflowStore.nodes.find((item) => item.id === configNodeId) as FlowNode | undefined;
-          if (!node) {
-            return null;
-          }
-          const incoming = workflowStore.edges.filter((edge) => edge.target === node.id);
-          const outgoing = workflowStore.edges.filter((edge) => edge.source === node.id);
-          const prevNodes = incoming
-            .map((edge) => workflowStore.nodes.find((n) => n.id === edge.source) as FlowNode | undefined)
-            .filter(Boolean) as FlowNode[];
-          const nextNodes = outgoing
-            .map((edge) => workflowStore.nodes.find((n) => n.id === edge.target) as FlowNode | undefined)
-            .filter(Boolean) as FlowNode[];
-          const title =
-            node.type === 'triggerNode'
-              ? '触发器'
-              : node.type === 'aiNode'
-                ? '对话 AI'
-                : '节点';
-          return (
-            <Modal
-              open
-              title={`节点配置 · ${title}`}
-              onCancel={() => setConfigNodeId(null)}
-              footer={null}
-              width={960}
-              centered
-            >
-              <div style={{ display: 'flex', gap: 16, height: 420 }}>
-                <div
-                  style={{
-                    width: 220,
-                    borderRight: '1px solid rgba(255,255,255,0.06)',
-                    paddingRight: 12,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 8,
-                  }}
-                >
-                  <div style={{ fontSize: 13, color: 'var(--lc-text-secondary)', marginBottom: 4 }}>上一个节点的输出</div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, overflowY: 'auto' }}>
-                    {prevNodes.length === 0 && (
-                      <div style={{ fontSize: 12, color: 'var(--lc-text-secondary)' }}>暂无上游节点</div>
-                    )}
-                    {prevNodes.map((n) => (
-                      <div
-                        key={n.id}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 8,
-                          padding: '6px 8px',
-                          borderRadius: 6,
-                          background: 'rgba(255,255,255,0.03)',
-                        }}
-                      >
-                        <span
-                          style={{
-                            width: 8,
-                            height: 8,
-                            borderRadius: 999,
-                            background: '#52c41a',
-                          }}
-                        />
-                        <span style={{ fontSize: 12, color: '#fff' }}>{n.type}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <Button size="small" type="primary">
-                      菜单1
-                    </Button>
-                    <Button size="small">菜单2</Button>
-                  </div>
-                  <div
-                    style={{
-                      flex: 1,
-                      borderRadius: 8,
-                      border: '1px solid rgba(255,255,255,0.06)',
-                      padding: 12,
-                      overflowY: 'auto',
-                    }}
-                  >
-                    {node.type === 'triggerNode' && (() => {
-                      const data = node.data as TriggerNodeData;
-                      const enabled = data.config.enabled ?? true;
-                      const mode = data.config.mode ?? 'manual';
-                      return (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                            <span style={{ fontSize: 12, color: 'var(--lc-text-secondary)' }}>名称</span>
-                            <Input
-                              size="small"
-                              value={data.name}
-                              onChange={(e) =>
-                                workflowStore.updateNodeData(node.id, {
-                                  name: e.target.value,
-                                } as Partial<TriggerNodeData>)
-                              }
-                            />
-                          </div>
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <span style={{ fontSize: 12, color: 'var(--lc-text-secondary)' }}>启用</span>
-                            <Switch
-                              checked={enabled}
-                              onChange={(checked) =>
-                                workflowStore.updateNodeData(node.id, {
-                                  config: {
-                                    ...data.config,
-                                    enabled: checked,
-                                  },
-                                } as Partial<TriggerNodeData>)
-                              }
-                            />
-                          </div>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                            <span style={{ fontSize: 12, color: 'var(--lc-text-secondary)' }}>触发模式</span>
-                            <Radio.Group
-                              size="small"
-                              value={mode}
-                              onChange={(e) =>
-                                workflowStore.updateNodeData(node.id, {
-                                  config: {
-                                    ...data.config,
-                                    mode: e.target.value,
-                                  },
-                                } as Partial<TriggerNodeData>)
-                              }
-                            >
-                              <Radio.Button value="manual">手动触发</Radio.Button>
-                              <Radio.Button value="scheduleOnce">定时触发（一次）</Radio.Button>
-                            </Radio.Group>
-                          </div>
-                          {mode === 'scheduleOnce' && (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                              <span style={{ fontSize: 12, color: 'var(--lc-text-secondary)' }}>执行时间</span>
-                              <Input
-                                size="small"
-                                placeholder="例如：2026-01-18 09:00"
-                              value={data.config.scheduleTime || ''}
-                                onChange={(e) =>
-                                workflowStore.updateNodeData(node.id, {
-                                  config: {
-                                    ...data.config,
-                                    scheduleTime: e.target.value,
-                                  },
-                                } as Partial<TriggerNodeData>)
-                                }
-                              />
-                            </div>
-                          )}
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                            <span style={{ fontSize: 12, color: 'var(--lc-text-secondary)' }}>初始变量（JSON）</span>
-                            <Input.TextArea
-                              placeholder='例如：{"userId":"123","topic":"日报总结"}'
-                              rows={4}
-                              value={data.config.initialPayload || ''}
-                              onChange={(e) =>
-                                workflowStore.updateNodeData(node.id, {
-                                  config: {
-                                    ...data.config,
-                                    initialPayload: e.target.value,
-                                  },
-                                } as Partial<TriggerNodeData>)
-                              }
-                            />
-                          </div>
-                          <Button
-                            type="primary"
-                            size="small"
-                            style={{ background: 'var(--lc-primary-gradient)', border: 'none' }}
-                            onClick={() => workflowStore.runTrigger(node.id, 'manual')}
-                          >
-                            立即运行
-                          </Button>
-                        </div>
-                      );
-                    })()}
-                    {node.type === 'aiNode' && (() => {
-                      const data = node.data as AINodeData;
-                      const config = data.config;
-                      return (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                            <span style={{ fontSize: 12, color: 'var(--lc-text-secondary)' }}>模型</span>
-                            <Select
-                              size="small"
-                              value={config.modelId}
-                              onChange={(value) =>
-                                workflowStore.updateNodeData(node.id, {
-                                  config: { ...config, modelId: value },
-                                } as Partial<AINodeData>)
-                              }
-                              options={[
-                                { label: 'GPT-4o', value: 'gpt-4o' },
-                                { label: 'Claude 3.5 Sonnet', value: 'claude-3-5-sonnet' },
-                                { label: 'Gemini 1.5 Pro', value: 'gemini-1.5-pro' },
-                              ]}
-                            />
-                          </div>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                            <span style={{ fontSize: 12, color: 'var(--lc-text-secondary)' }}>系统提示词 (System Prompt)</span>
-                            <Input.TextArea
-                              rows={6}
-                              value={config.systemPrompt}
-                              onChange={(e) =>
-                                workflowStore.updateNodeData(node.id, {
-                                  config: { ...config, systemPrompt: e.target.value },
-                                } as Partial<AINodeData>)
-                              }
-                              placeholder="设定 AI 的角色和行为..."
-                            />
-                          </div>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                            <span style={{ fontSize: 12, color: 'var(--lc-text-secondary)' }}>历史记录策略</span>
-                            <Radio.Group
-                              size="small"
-                              value={config.historyPolicy}
-                              onChange={(e) =>
-                                workflowStore.updateNodeData(node.id, {
-                                  config: { ...config, historyPolicy: e.target.value },
-                                } as Partial<AINodeData>)
-                              }
-                            >
-                              <Radio.Button value="none">无记忆</Radio.Button>
-                              <Radio.Button value="node">节点级记忆</Radio.Button>
-                            </Radio.Group>
-                          </div>
-                        </div>
-                      );
-                    })()}
-                    {node.type !== 'triggerNode' && node.type !== 'aiNode' && (
-                      <div style={{ fontSize: 13, color: 'var(--lc-text-secondary)' }}>
-                        当前节点的属性配置暂未实现。
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div
-                  style={{
-                    width: 220,
-                    borderLeft: '1px solid rgba(255,255,255,0.06)',
-                    paddingLeft: 12,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 8,
-                  }}
-                >
-                  <div style={{ fontSize: 13, color: 'var(--lc-text-secondary)', marginBottom: 4 }}>下一个节点的输入</div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, overflowY: 'auto' }}>
-                    {nextNodes.length === 0 && (
-                      <div style={{ fontSize: 12, color: 'var(--lc-text-secondary)' }}>暂无下游节点</div>
-                    )}
-                    {nextNodes.map((n) => (
-                      <div
-                        key={n.id}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 8,
-                          padding: '6px 8px',
-                          borderRadius: 6,
-                          background: 'rgba(255,255,255,0.03)',
-                        }}
-                      >
-                        <span
-                          style={{
-                            width: 8,
-                            height: 8,
-                            borderRadius: 999,
-                            background: '#faad14',
-                          }}
-                        />
-                        <span style={{ fontSize: 12, color: '#fff' }}>{n.type}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </Modal>
-          );
-        })()}
+      <NodeConfigModal
+        open={Boolean(configNodeId)}
+        nodeId={configNodeId}
+        onClose={() => setConfigNodeId(null)}
+      />
 
       {/* Console Panel */}
       <div className={`${styles.console} ${!uiStore.isConsoleOpen ? styles.collapsed : ''}`}>
