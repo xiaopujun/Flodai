@@ -13,7 +13,7 @@ export class UIStore {
   rootStore: RootStore;
   isConsoleOpen: boolean = true;
   sidebarWidth: number = 260;
-  nodeDisplayMode: 'compact' | 'detailed' = 'detailed';
+  nodeDisplayMode: 'compact' | 'detailed' = 'compact';
 
   logs: ConsoleLogItem[] = [
     { id: 'init-1', level: 'info', message: '[10:00:01] 系统已初始化。' },

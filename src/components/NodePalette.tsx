@@ -48,8 +48,8 @@ const nodePaletteCategories: NodeCategory[] = [
     label: 'AI 生成与理解',
     items: [
       {
-        id: 'ai-generator',
-        label: 'AI 生成器',
+        id: 'conversation-ai',
+        label: '对话 AI',
         nodeType: 'aiNode',
       },
     ],

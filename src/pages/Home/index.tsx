@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button, Dropdown } from 'antd';
+import { Button, Dropdown, Form, Input, Modal } from 'antd';
 import { FolderKanban, Settings2, Info, Cpu } from 'lucide-react';
 import { MoreOutlined } from '@ant-design/icons';
 import { open } from '@tauri-apps/plugin-dialog';
@@ -19,6 +19,7 @@ type HomeProps = {
   onOpenProject: (project: Project) => void;
   onDeleteProject: (projectId: string) => void;
   onDuplicateProject: (projectId: string) => void;
+  onCreateProject: (payload: { name: string; description: string }) => void;
 };
 
 export function Home({
@@ -26,11 +27,15 @@ export function Home({
   onOpenProject,
   onDeleteProject,
   onDuplicateProject,
+  onCreateProject,
 }: HomeProps) {
   const CONFIG_STORE_NAME = 'config.json';
   type MenuKey = 'projects' | 'models' | 'settings' | 'about';
   const [activeMenu, setActiveMenu] = useState<MenuKey>('projects');
   const [workspacePath, setWorkspacePath] = useState('');
+  const [createProjectModalVisible, setCreateProjectModalVisible] = useState(false);
+  const [createProjectSubmitting, setCreateProjectSubmitting] = useState(false);
+  const [projectForm] = Form.useForm<{ name: string; description: string }>();
 
   useEffect(() => {
     let canceled = false;
@@ -68,6 +73,27 @@ export function Home({
       await store.save();
     } catch (error) {
       console.error('选择工作区目录失败', error);
+    }
+  };
+
+  const handleOpenCreateProjectModal = () => {
+    projectForm.resetFields();
+    setCreateProjectModalVisible(true);
+  };
+
+  const handleSubmitCreateProject = async () => {
+    try {
+      const values = await projectForm.validateFields();
+      setCreateProjectSubmitting(true);
+      onCreateProject({
+        name: values.name,
+        description: values.description || '',
+      });
+      setCreateProjectModalVisible(false);
+    } catch (error) {
+      console.error('创建项目失败', error);
+    } finally {
+      setCreateProjectSubmitting(false);
     }
   };
 
@@ -137,6 +163,7 @@ export function Home({
               <Button
                 type="primary"
                 style={{ background: 'var(--lc-primary-gradient)', border: 'none' }}
+                onClick={handleOpenCreateProjectModal}
               >
                 新建项目
               </Button>
@@ -215,6 +242,48 @@ export function Home({
             </section>
           </>
         )}
+
+        <Modal
+          open={createProjectModalVisible}
+          title="新建项目"
+          onCancel={() => setCreateProjectModalVisible(false)}
+          onOk={handleSubmitCreateProject}
+          confirmLoading={createProjectSubmitting}
+          okText="创建并进入编辑"
+          cancelText="取消"
+          centered
+        >
+          <div className={styles.modelsModalBody}>
+            <div className={styles.modelsModalIntro}>
+              <div className={styles.modelsModalTitle}>创建新的工作流项目</div>
+              <div className={styles.modelsModalDesc}>
+                为你的工作流起一个清晰的名字，并补充简要介绍，方便后续管理与查找。
+              </div>
+            </div>
+            <Form
+              form={projectForm}
+              layout="vertical"
+              className={styles.modelsModalForm}
+            >
+              <div className={styles.modelsModalGrid}>
+                <Form.Item
+                  name="name"
+                  label="项目名称"
+                  rules={[{ required: true, message: '请输入项目名称' }]}
+                >
+                  <Input placeholder="例如：日报生成助手" />
+                </Form.Item>
+                <Form.Item
+                  name="description"
+                  label="项目简介"
+                  rules={[]}
+                >
+                  <Input placeholder="简要描述项目的用途与目标" />
+                </Form.Item>
+              </div>
+            </Form>
+          </div>
+        </Modal>
 
         {activeMenu === 'models' && <ModelManager />}
 

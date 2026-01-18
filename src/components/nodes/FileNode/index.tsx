@@ -10,8 +10,10 @@ import styles from './FileNode.module.less';
 export const FileNode = memo(({ data, selected, id }: FileNodeProps) => {
   const { workflowStore, uiStore } = useStore();
   const nodeData = data as FileNodeData;
-  const mode = (nodeData.mode as 'read' | 'write') || 'write';
+  const mode = (nodeData.config.mode as 'read' | 'write') || 'write';
   const compact = uiStore.nodeDisplayMode === 'compact';
+  const inputs = nodeData.inputs || [];
+  const outputs = nodeData.outputs || [];
 
   if (compact) {
     return (
@@ -26,8 +28,24 @@ export const FileNode = memo(({ data, selected, id }: FileNodeProps) => {
         }}
         onPointerLeave={() => uiStore.hideNodeHoverDetail()}
       >
-        <Handle type="target" position={Position.Left} id="in" style={{ background: '#fff' }} />
-        <Handle type="source" position={Position.Right} id="out" style={{ background: '#fff' }} />
+        {inputs.map((port) => (
+          <Handle
+            key={port.id}
+            id={port.id}
+            type="target"
+            position={Position.Left}
+            style={{ background: '#fff' }}
+          />
+        ))}
+        {outputs.map((port) => (
+          <Handle
+            key={port.id}
+            id={port.id}
+            type="source"
+            position={Position.Right}
+            style={{ background: '#fff' }}
+          />
+        ))}
         <div className={styles.compactIcon}>
           <FileText size={20} />
         </div>
@@ -37,23 +55,49 @@ export const FileNode = memo(({ data, selected, id }: FileNodeProps) => {
   }
 
   const handleModeChange = (value: string) => {
-    workflowStore.updateNodeData(id, { mode: value });
+    workflowStore.updateNodeData(id, {
+      config: {
+        ...nodeData.config,
+        mode: value as 'read' | 'write',
+      },
+    });
   };
 
   const handlePathChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    workflowStore.updateNodeData(id, { path: e.target.value });
+    workflowStore.updateNodeData(id, {
+      config: {
+        ...nodeData.config,
+        pathTemplate: e.target.value,
+      },
+    });
   };
 
   return (
     <BaseNode
-      title="文件系统"
+      title={nodeData.name || '文件系统'}
       icon={<FileText size={16} />}
       selected={selected}
       headerStyle={{ background: 'var(--lc-info-gradient)' }}
       handles={
         <>
-          <Handle type="target" position={Position.Left} id="in" style={{ background: '#fff' }} />
-          <Handle type="source" position={Position.Right} id="out" style={{ background: 'var(--lc-info)' }} />
+          {inputs.map((port) => (
+            <Handle
+              key={port.id}
+              id={port.id}
+              type="target"
+              position={Position.Left}
+              style={{ background: '#fff' }}
+            />
+          ))}
+          {outputs.map((port) => (
+            <Handle
+              key={port.id}
+              id={port.id}
+              type="source"
+              position={Position.Right}
+              style={{ background: 'var(--lc-info)' }}
+            />
+          ))}
         </>
       }
     >
@@ -74,7 +118,7 @@ export const FileNode = memo(({ data, selected, id }: FileNodeProps) => {
         <label>文件路径</label>
         <div style={{ display: 'flex', gap: 4 }}>
           <Input 
-            value={nodeData.path} 
+            value={nodeData.config.pathTemplate} 
             placeholder="例如：/path/to/file.md" 
             size="small" 
             onChange={handlePathChange}

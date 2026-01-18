@@ -74,7 +74,7 @@ export class WorkflowStore {
   ) {
     this.nodes = this.nodes.map((node) => {
       if (node.id === id) {
-        return { ...node, data: { ...node.data, ...data } } as FlowNode;
+        return { ...node, data: { ...(node.data as any), ...data } } as FlowNode;
       }
       return node;
     });
@@ -85,26 +85,29 @@ export class WorkflowStore {
     if (!node) return;
 
     const data = node.data as TriggerNodeData;
-    const enabled = data.enabled ?? true;
+    const enabled = data.config.enabled ?? true;
 
     if (!enabled) {
       const time = formatTime(new Date());
-      this.rootStore.uiStore.appendLog('info', `[${time}] 触发器「${data.label || '触发器'}」已停用，跳过执行。`);
+      this.rootStore.uiStore.appendLog(
+        'info',
+        `[${time}] 触发器「${data.name || '触发器'}」已停用，跳过执行。`,
+      );
       return;
     }
 
     const now = new Date();
     const time = formatTime(now);
-    const mode = data.mode ?? 'manual';
+    const mode = data.config.mode ?? 'manual';
 
     this.rootStore.uiStore.appendLog(
       'info',
-      `[${time}] 触发器「${data.label || '触发器'}」已执行（模式：${source === 'manual' ? '手动' : '定时'}，配置：${
+      `[${time}] 触发器「${data.name || '触发器'}」已执行（模式：${source === 'manual' ? '手动' : '定时'}，配置：${
         mode === 'manual' ? '手动触发' : '定时触发'
       }）。`,
     );
 
-    const rawPayload = (data.initialPayload || '').trim();
+    const rawPayload = (data.config.initialPayload || '').trim();
 
     if (rawPayload) {
       try {
@@ -119,7 +122,12 @@ export class WorkflowStore {
       }
     }
 
-    this.updateNodeData(id, { lastRunAt: now.toISOString() });
+    this.updateNodeData(id, {
+      config: {
+        ...data.config,
+        lastRunAt: now.toISOString(),
+      },
+    } as Partial<TriggerNodeData>);
   }
 
   runAllEnabledTriggers() {
@@ -132,7 +140,7 @@ export class WorkflowStore {
 
     triggers.forEach((node) => {
       const data = node.data as TriggerNodeData;
-      const enabled = data.enabled ?? true;
+      const enabled = data.config.enabled ?? true;
       if (!enabled) return;
       this.runTrigger(node.id, 'manual');
     });
@@ -151,17 +159,17 @@ export class WorkflowStore {
       if (node.type !== 'triggerNode') return;
 
       const data = node.data as TriggerNodeData;
-      const enabled = data.enabled ?? true;
+      const enabled = data.config.enabled ?? true;
       if (!enabled) return;
 
-      if (data.mode !== 'scheduleOnce') return;
-      if (!data.scheduleTime) return;
+      if (data.config.mode !== 'scheduleOnce') return;
+      if (!data.config.scheduleTime) return;
 
-      const scheduled = new Date(data.scheduleTime.replace(' ', 'T'));
+      const scheduled = new Date(data.config.scheduleTime.replace(' ', 'T'));
       if (Number.isNaN(scheduled.getTime())) return;
 
-      if (data.lastRunAt) {
-        const lastRun = new Date(data.lastRunAt);
+      if (data.config.lastRunAt) {
+        const lastRun = new Date(data.config.lastRunAt);
         if (!Number.isNaN(lastRun.getTime()) && lastRun.getTime() >= scheduled.getTime()) {
           return;
         }
