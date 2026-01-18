@@ -1,5 +1,5 @@
 import { Collapse } from 'antd';
-import styles from '../App.module.less';
+import styles from './NodePalette.module.less';
 import { PlayCircle } from 'lucide-react';
 
 export interface NodePaletteDragPayload {

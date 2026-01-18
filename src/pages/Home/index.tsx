@@ -6,13 +6,7 @@ import { open } from '@tauri-apps/plugin-dialog';
 import { Store } from '@tauri-apps/plugin-store';
 import { ModelManager } from './ModelManager';
 import styles from './Home.module.less';
-
-type Project = {
-  id: string;
-  name: string;
-  description: string;
-  updatedAt: string;
-};
+import type { Project } from '../../types/project';
 
 type HomeProps = {
   projects: Project[];
