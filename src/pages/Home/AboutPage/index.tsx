@@ -1,4 +1,4 @@
-import styles from './Home.module.less';
+import styles from '../Home.module.less';
 
 export function AboutPage() {
   return (
@@ -15,4 +15,3 @@ export function AboutPage() {
     </section>
   );
 }
-

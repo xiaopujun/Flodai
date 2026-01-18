@@ -4,9 +4,9 @@ import { Button, Dropdown, Form, Input, Modal } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
 import { observer } from 'mobx-react-lite';
 import { useNavigate } from 'react-router-dom';
-import styles from './Home.module.less';
-import type { Project } from '../../types/project';
-import { useStore } from '../../stores/RootStore';
+import styles from '../Home.module.less';
+import type { Project } from '../../../types/project';
+import { useStore } from '../../../stores/RootStore';
 
 export const ProjectsPage = observer(() => {
   const { projectStore } = useStore();

@@ -1,8 +1,8 @@
 import type { Node, Edge, NodeProps } from '@xyflow/react';
 
-export type NodeKind = 'trigger';
+export type NodeType = 'trigger';
 
-export type PortKind = 'control' | 'data';
+export type PortType = 'control' | 'data';
 
 export type DataType = 'any' | 'string' | 'json' | 'messages' | 'binary' | 'number' | 'boolean';
 
@@ -10,7 +10,7 @@ export interface InputPort {
   id: string;
   key: string;
   label: string;
-  kind: PortKind;
+  type: PortType;
   dataType?: DataType;
   required?: boolean;
 }
@@ -19,13 +19,13 @@ export interface OutputPort {
   id: string;
   key: string;
   label: string;
-  kind: PortKind;
+  type: PortType;
   dataType?: DataType;
 }
 
 export interface BaseNodeData {
   [key: string]: unknown;
-  kind: NodeKind;
+  type: NodeType;
   name: string;
   description?: string;
   inputs: InputPort[];
@@ -41,7 +41,7 @@ export interface TriggerNodeConfig {
 }
 
 export interface TriggerNodeData extends BaseNodeData {
-  kind: 'trigger';
+  type: 'trigger';
   config: TriggerNodeConfig;
 }
 

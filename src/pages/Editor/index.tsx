@@ -112,7 +112,7 @@ export const Editor = observer(() => {
         type: 'triggerNode',
         position,
         data: {
-          kind: 'trigger',
+          type: 'trigger',
           name: baseName || '触发器',
           description: '',
           inputs: [],
@@ -121,7 +121,7 @@ export const Editor = observer(() => {
               id: `${id}-out`,
               key: 'next',
               label: '下游',
-              kind: 'control',
+              type: 'control',
             },
           ],
           config: {

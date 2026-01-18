@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 import { Button, Dropdown, Form, Input, Modal, Select } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
 import { Store } from '@tauri-apps/plugin-store';
-import openaiLogo from '../../assets/image/model-openai.svg';
-import deepseekLogo from '../../assets/image/model-deepseek.svg';
-import aliLogo from '../../assets/image/model-qwen.svg';
-import baiduLogo from '../../assets/image/model-baidu.svg';
-import genericLogo from '../../assets/image/model-generic.svg';
-import styles from './Home.module.less';
+import openaiLogo from '../../../assets/image/model-openai.svg';
+import deepseekLogo from '../../../assets/image/model-deepseek.svg';
+import aliLogo from '../../../assets/image/model-qwen.svg';
+import baiduLogo from '../../../assets/image/model-baidu.svg';
+import genericLogo from '../../../assets/image/model-generic.svg';
+import styles from '../Home.module.less';
 
 type ModelConfig = {
   id: string;
@@ -87,7 +87,7 @@ const decryptText = async (cipherText: string) => {
   return decoder.decode(decrypted);
 };
 
-export function ModelManager() {
+export function ModelsPage() {
   const [models, setModels] = useState<ModelConfig[]>([]);
   const [modelModalVisible, setModelModalVisible] = useState(false);
   const [modelModalSubmitting, setModelModalSubmitting] = useState(false);

@@ -1,5 +1,5 @@
 import { FolderKanban, Settings2, Info, Cpu } from 'lucide-react';
-import styles from './Home.module.less';
+import styles from '../Home.module.less';
 
 type MenuKey = 'projects' | 'models' | 'settings' | 'about';
 
@@ -60,4 +60,3 @@ export function HomeSidebar({ activeMenu, onChange }: HomeSidebarProps) {
     </aside>
   );
 }
-

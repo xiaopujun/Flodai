@@ -3,7 +3,7 @@ import { Button } from 'antd';
 import { FolderKanban } from 'lucide-react';
 import { open } from '@tauri-apps/plugin-dialog';
 import { Store } from '@tauri-apps/plugin-store';
-import styles from './Home.module.less';
+import styles from '../Home.module.less';
 
 export function SettingsPage() {
   const CONFIG_STORE_NAME = 'config.json';
