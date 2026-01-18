@@ -1,6 +1,6 @@
 import { Collapse } from 'antd';
 import styles from '../App.module.less';
-import { Bot, Code2, FileText, PlayCircle } from 'lucide-react';
+import { Bot, PlayCircle } from 'lucide-react';
 
 export interface NodePaletteDragPayload {
   nodeType: string;
@@ -10,9 +10,7 @@ export interface NodePaletteDragPayload {
 type NodeCategoryId =
   | 'triggers'
   | 'ai'
-  | 'io'
   | 'integrations'
-  | 'code'
   | 'transform'
   | 'state'
   | 'output'
@@ -55,31 +53,9 @@ const nodePaletteCategories: NodeCategory[] = [
     ],
   },
   {
-    id: 'io',
-    label: 'IO 与文件操作',
-    items: [
-      {
-        id: 'file-reader',
-        label: '文件读取',
-        nodeType: 'fileNode',
-      },
-    ],
-  },
-  {
     id: 'integrations',
     label: '数据源与集成',
     items: [],
-  },
-  {
-    id: 'code',
-    label: '代码与执行',
-    items: [
-      {
-        id: 'python-script',
-        label: 'Python 脚本',
-        nodeType: 'pythonScriptNode',
-      },
-    ],
   },
   {
     id: 'transform',
@@ -114,10 +90,6 @@ function renderNodeIcon(nodeType: string) {
       return <PlayCircle size={16} />;
     case 'aiNode':
       return <Bot size={16} />;
-    case 'fileNode':
-      return <FileText size={16} />;
-    case 'pythonScriptNode':
-      return <Code2 size={16} />;
     default:
       return null;
   }
@@ -134,7 +106,7 @@ export function NodePalette({
     <Collapse
       className={styles.paletteCollapse}
       bordered={false}
-      defaultActiveKey={['triggers', 'ai', 'io', 'code']}
+      defaultActiveKey={['triggers', 'ai']}
       items={nodePaletteCategories.map((category) => ({
         key: category.id,
         label: category.label,

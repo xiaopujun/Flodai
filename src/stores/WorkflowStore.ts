@@ -5,9 +5,7 @@ import type {
   FlowNode,
   FlowEdge,
   AINodeData,
-  FileNodeData,
   TriggerNodeData,
-  PythonScriptNodeData,
 } from '../types/flow';
 
 function formatTime(date: Date): string {
@@ -70,7 +68,7 @@ export class WorkflowStore {
 
   updateNodeData(
     id: string,
-    data: Partial<AINodeData> | Partial<FileNodeData> | Partial<TriggerNodeData> | Partial<PythonScriptNodeData>,
+    data: Partial<AINodeData> | Partial<TriggerNodeData>,
   ) {
     this.nodes = this.nodes.map((node) => {
       if (node.id === id) {

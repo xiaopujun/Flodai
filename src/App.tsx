@@ -17,11 +17,8 @@ import type {
   FlowEdge,
   TriggerNodeData,
   AINodeData,
-  FileNodeData,
   ConversationAIConfig,
   TriggerNodeConfig,
-  FileNodeConfig,
-  PythonScriptNodeData,
 } from './types/flow';
 import { Home } from './pages/Home';
 
@@ -167,123 +164,32 @@ const Editor = observer(({ currentProject, onBackHome }: EditorProps) => {
               } as ConversationAIConfig,
             } as AINodeData,
           } as FlowNode)
-          : nodeType === 'fileNode'
-            ? ({
-              id,
-              type: 'fileNode',
-              position,
-              data: {
-                kind: 'file',
-                name: baseName || '文件节点',
-                description: '',
-                inputs: [
-                  {
-                    id: `${id}-in`,
-                    key: 'control',
-                    label: '上游',
-                    kind: 'control',
-                  },
-                ],
-                outputs: [
-                  {
-                    id: `${id}-out`,
-                    key: 'control',
-                    label: '下游',
-                    kind: 'control',
-                  },
-                ],
-                config: {
-                  mode: 'write',
-                  pathTemplate: '',
-                } as FileNodeConfig,
-                content: '',
-              } as FileNodeData,
-            } as FlowNode)
-            : nodeType === 'triggerNode'
-              ? ({
-                id,
-                type: 'triggerNode',
-                position,
-                data: {
-                  kind: 'trigger',
-                  name: baseName || '触发器',
-                  description: '',
-                  inputs: [],
-                  outputs: [
-                    {
-                      id: `${id}-out`,
-                      key: 'next',
-                      label: '下游',
-                      kind: 'control',
-                    },
-                  ],
-                  config: {
-                    mode: 'manual',
-                    scheduleTime: undefined,
-                    initialPayload: '',
-                    enabled: true,
-                    lastRunAt: undefined,
-                  } as TriggerNodeConfig,
-                } as TriggerNodeData,
-              } as FlowNode)
-              : nodeType === 'pythonScriptNode'
-                ? ({
-                  id,
-                  type: 'pythonScriptNode',
-                  position,
-                  data: {
-                    kind: 'pythonScript',
-                    name: baseName || 'Python 脚本',
-                    description: '',
-                    inputs: [
-                      {
-                        id: `${id}-in`,
-                        key: 'control',
-                        label: '上游',
-                        kind: 'control',
-                      },
-                    ],
-                    outputs: [
-                      {
-                        id: `${id}-out`,
-                        key: 'control',
-                        label: '下游',
-                        kind: 'control',
-                      },
-                    ],
-                    config: {
-                      label: baseName || 'Python 脚本',
-                      scriptPath: '',
-                      entryFunction: '',
-                    },
-                  } as PythonScriptNodeData,
-                } as FlowNode)
-                : ({
-                  id,
-                  type: 'triggerNode',
-                  position,
-                  data: {
-                    kind: 'trigger',
-                    name: baseName || '触发器',
-                    description: '',
-                    inputs: [],
-                    outputs: [
-                      {
-                        id: `${id}-out`,
-                        key: 'next',
-                        label: '下游',
-                        kind: 'control',
-                      },
-                    ],
-                    config: {
-                      mode: 'manual',
-                      scheduleTime: undefined,
-                      initialPayload: '',
-                      enabled: true,
-                      lastRunAt: undefined,
-                    } as TriggerNodeConfig,
-                  } as TriggerNodeData,
-                } as FlowNode);
+          : ({
+            id,
+            type: 'triggerNode',
+            position,
+            data: {
+              kind: 'trigger',
+              name: baseName || '触发器',
+              description: '',
+              inputs: [],
+              outputs: [
+                {
+                  id: `${id}-out`,
+                  key: 'next',
+                  label: '下游',
+                  kind: 'control',
+                },
+              ],
+              config: {
+                mode: 'manual',
+                scheduleTime: undefined,
+                initialPayload: '',
+                enabled: true,
+                lastRunAt: undefined,
+              } as TriggerNodeConfig,
+            } as TriggerNodeData,
+          } as FlowNode);
 
       workflowStore.addNode(node);
     },
@@ -409,27 +315,6 @@ const Editor = observer(({ currentProject, onBackHome }: EditorProps) => {
             <span style={{ opacity: 0.7 }}>系统消息 / 角色设定</span>
             <span style={{ wordBreak: 'break-all', whiteSpace: 'pre-wrap' }}>
               {data.config.systemPrompt || '未设置'}
-            </span>
-          </div>
-        </div>
-      );
-    }
-
-    if (node.type === 'fileNode') {
-      const data = node.data as FileNodeData;
-      const mode = (data.config.mode as 'read' | 'write') || 'write';
-      const modeText = mode === 'read' ? '读取' : '写入';
-      return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>文件系统</div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', columnGap: 24 }}>
-            <span style={{ opacity: 0.7 }}>模式</span>
-            <span>{modeText}</span>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <span style={{ opacity: 0.7 }}>文件路径</span>
-            <span style={{ wordBreak: 'break-all' }}>
-              {data.config.pathTemplate || '未设置'}
             </span>
           </div>
         </div>
@@ -568,9 +453,7 @@ const Editor = observer(({ currentProject, onBackHome }: EditorProps) => {
               ? '触发器'
               : node.type === 'aiNode'
                 ? '对话 AI'
-                : node.type === 'fileNode'
-                  ? '文件节点'
-                  : '节点';
+                : '节点';
           return (
             <Modal
               open
