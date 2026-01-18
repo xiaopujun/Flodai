@@ -1,13 +1,53 @@
+import { useEffect, useState } from 'react';
 import { Button } from 'antd';
 import { FolderKanban } from 'lucide-react';
+import { open } from '@tauri-apps/plugin-dialog';
+import { Store } from '@tauri-apps/plugin-store';
 import styles from './Home.module.less';
 
-type SettingsPageProps = {
-  workspacePath: string;
-  onSelectWorkspace: () => void;
-};
+export function SettingsPage() {
+  const CONFIG_STORE_NAME = 'config.json';
+  const [workspacePath, setWorkspacePath] = useState('');
 
-export function SettingsPage({ workspacePath, onSelectWorkspace }: SettingsPageProps) {
+  useEffect(() => {
+    let canceled = false;
+
+    const loadWorkspace = async () => {
+      try {
+        const store = await Store.load(CONFIG_STORE_NAME);
+        const savedPath = await store.get<string>('workspace.path');
+        if (!canceled && savedPath) {
+          setWorkspacePath(savedPath);
+        }
+      } catch (error) {
+        console.error('加载工作区配置失败', error);
+      }
+    };
+
+    loadWorkspace();
+
+    return () => {
+      canceled = true;
+    };
+  }, []);
+
+  const handleSelectWorkspace = async () => {
+    try {
+      const selected = await open({
+        directory: true,
+        multiple: false,
+      });
+      if (!selected || typeof selected !== 'string') return;
+      setWorkspacePath(selected);
+
+      const store = await Store.load(CONFIG_STORE_NAME);
+      await store.set('workspace.path', selected);
+      await store.save();
+    } catch (error) {
+      console.error('选择工作区目录失败', error);
+    }
+  };
+
   return (
     <section className={styles.settingsSection}>
       <div className={styles.settingsPageHeader}>
@@ -31,7 +71,7 @@ export function SettingsPage({ workspacePath, onSelectWorkspace }: SettingsPageP
                 type="text"
                 shape="circle"
                 icon={<FolderKanban size={16} />}
-                onClick={onSelectWorkspace}
+                onClick={handleSelectWorkspace}
               />
             </div>
           </div>
@@ -40,4 +80,3 @@ export function SettingsPage({ workspacePath, onSelectWorkspace }: SettingsPageP
     </section>
   );
 }
-
