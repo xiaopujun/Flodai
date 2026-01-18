@@ -7,23 +7,8 @@ import { ProjectsPage } from './ProjectsPage';
 import { ModelsPage } from './ModelsPage';
 import { SettingsPage } from './SettingsPage';
 import { AboutPage } from './AboutPage';
-import type { Project } from '../../types/project';
 
-type HomeProps = {
-  projects: Project[];
-  onOpenProject: (project: Project) => void;
-  onDeleteProject: (projectId: string) => void;
-  onDuplicateProject: (projectId: string) => void;
-  onCreateProject: (payload: { name: string; description: string }) => void;
-};
-
-export function Home({
-  projects,
-  onOpenProject,
-  onDeleteProject,
-  onDuplicateProject,
-  onCreateProject,
-}: HomeProps) {
+export function Home() {
   const CONFIG_STORE_NAME = 'config.json';
   type MenuKey = 'projects' | 'models' | 'settings' | 'about';
   const [activeMenu, setActiveMenu] = useState<MenuKey>('projects');
@@ -74,13 +59,7 @@ export function Home({
 
       <main className={styles.main}>
         {activeMenu === 'projects' && (
-          <ProjectsPage
-            projects={projects}
-            onOpenProject={onOpenProject}
-            onDeleteProject={onDeleteProject}
-            onDuplicateProject={onDuplicateProject}
-            onCreateProject={onCreateProject}
-          />
+          <ProjectsPage />
         )}
         {activeMenu === 'models' && <ModelsPage />}
         {activeMenu === 'settings' && (

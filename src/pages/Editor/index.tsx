@@ -6,6 +6,7 @@ import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactFlowInstance } from '@xyflow/react';
 import { v4 as uuidv4 } from 'uuid';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useStore } from '../../stores/RootStore';
 import styles from './Editor.module.less';
 import { nodeTypes } from '../../components/nodes';
@@ -17,20 +18,28 @@ import type {
   TriggerNodeData,
   TriggerNodeConfig,
 } from '../../types/flow';
-import type { Project } from '../../types/project';
 
-type EditorProps = {
-  currentProject: Project;
-  onBackHome: () => void;
-};
-
-export const Editor = observer(({ currentProject, onBackHome }: EditorProps) => {
-  const { workflowStore, uiStore } = useStore();
+export const Editor = observer(() => {
+  const { projectId } = useParams<{ projectId: string }>();
+  const navigate = useNavigate();
+  const { workflowStore, uiStore, projectStore } = useStore();
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance<FlowNode, FlowEdge> | null>(null);
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const [dragGhost, setDragGhost] = useState<{ x: number; y: number; label: string } | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const [configNodeId, setConfigNodeId] = useState<string | null>(null);
+
+  const currentProject = projectStore.getProjectById(projectId || '');
+
+  useEffect(() => {
+    if (currentProject) {
+      projectStore.setCurrentProject(currentProject);
+    }
+  }, [currentProject, projectStore]);
+
+  const onBackHome = () => {
+    navigate('/home');
+  };
 
   const enablePointerDrag = useMemo(() => {
     const w = window as unknown as { __TAURI__?: unknown; __TAURI_INTERNALS__?: unknown };
@@ -236,6 +245,15 @@ export const Editor = observer(({ currentProject, onBackHome }: EditorProps) => 
       </div>
     );
   };
+
+  if (!currentProject) {
+    return (
+      <div style={{ padding: 20 }}>
+        <h2>未找到项目</h2>
+        <Button onClick={onBackHome}>返回首页</Button>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>

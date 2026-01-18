@@ -1,27 +1,52 @@
 import { useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import { Button, Dropdown, Form, Input, Modal } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
+import { observer } from 'mobx-react-lite';
+import { useNavigate } from 'react-router-dom';
 import styles from './Home.module.less';
 import type { Project } from '../../types/project';
+import { useStore } from '../../stores/RootStore';
 
-type ProjectsPageProps = {
-  projects: Project[];
-  onOpenProject: (project: Project) => void;
-  onDeleteProject: (projectId: string) => void;
-  onDuplicateProject: (projectId: string) => void;
-  onCreateProject: (payload: { name: string; description: string }) => void;
-};
-
-export function ProjectsPage({
-  projects,
-  onOpenProject,
-  onDeleteProject,
-  onDuplicateProject,
-  onCreateProject,
-}: ProjectsPageProps) {
+export const ProjectsPage = observer(() => {
+  const { projectStore } = useStore();
+  const navigate = useNavigate();
   const [createProjectModalVisible, setCreateProjectModalVisible] = useState(false);
   const [createProjectSubmitting, setCreateProjectSubmitting] = useState(false);
   const [projectForm] = Form.useForm<{ name: string; description: string }>();
+
+  const handleOpenProject = (project: Project) => {
+    projectStore.setCurrentProject(project);
+    navigate(`/editor/${project.id}`);
+  };
+
+  const handleDeleteProject = (projectId: string) => {
+    const newProjects = projectStore.projects.filter((item) => item.id !== projectId);
+    projectStore.setProjects(newProjects);
+  };
+
+  const handleDuplicateProject = (projectId: string) => {
+    const source = projectStore.projects.find((p) => p.id === projectId);
+    if (!source) return;
+    const newProject: Project = {
+      ...source,
+      id: uuidv4(),
+      name: `${source.name} (复制)`,
+      updatedAt: new Date().toISOString().split('T')[0],
+    };
+    projectStore.setProjects([newProject, ...projectStore.projects]);
+  };
+
+  const handleCreateProject = (payload: { name: string; description: string }) => {
+    const newProject: Project = {
+      id: uuidv4(),
+      name: payload.name,
+      description: payload.description,
+      updatedAt: new Date().toISOString().split('T')[0],
+    };
+    projectStore.setProjects([newProject, ...projectStore.projects]);
+    handleOpenProject(newProject);
+  };
 
   const handleOpenCreateProjectModal = () => {
     projectForm.resetFields();
@@ -32,7 +57,7 @@ export function ProjectsPage({
     try {
       const values = await projectForm.validateFields();
       setCreateProjectSubmitting(true);
-      onCreateProject({
+      handleCreateProject({
         name: values.name,
         description: values.description || '',
       });
@@ -89,11 +114,11 @@ export function ProjectsPage({
           <div className={styles.projectHint}>双击项目卡片进入编辑页面</div>
         </div>
         <div className={styles.projectGrid}>
-          {projects.map((project) => (
+          {projectStore.projects.map((project) => (
             <div
               key={project.id}
               className={styles.projectCard}
-              onDoubleClick={() => onOpenProject(project)}
+              onDoubleClick={() => handleOpenProject(project)}
             >
               <div className={styles.projectName}>{project.name}</div>
               <div className={styles.projectDescription}>{project.description}</div>
@@ -109,10 +134,10 @@ export function ProjectsPage({
                     ],
                     onClick: ({ key }) => {
                       if (key === 'duplicate') {
-                        onDuplicateProject(project.id);
+                        handleDuplicateProject(project.id);
                       }
                       if (key === 'delete') {
-                        onDeleteProject(project.id);
+                        handleDeleteProject(project.id);
                       }
                     },
                   }}
@@ -166,5 +191,4 @@ export function ProjectsPage({
       </Modal>
     </>
   );
-}
-
+});

@@ -1,3 +1,4 @@
+import { BrowserRouter } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
 import { RootStore, RootStoreContext } from './stores/RootStore';
 import { appTheme } from './theme';
@@ -10,7 +11,9 @@ function App() {
   return (
     <ConfigProvider theme={appTheme}>
       <RootStoreContext.Provider value={rootStore}>
-        <AppRoot />
+        <BrowserRouter>
+          <AppRoot />
+        </BrowserRouter>
       </RootStoreContext.Provider>
     </ConfigProvider>
   );
